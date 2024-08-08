@@ -1,14 +1,17 @@
 #include <iostream>
 #include <vector>
+#include <iomanip>
 
 using namespace std;
+
+const int MAX_BAD_GUESSES = 3; // 3 lives 
 
 // 3 states for each cell
 const int EMPTY = 0;
 const int FILLED = 1;
 const int MARKED = -1;
 
-void displayGrid(const vector<vector<int>>& grid);
+void displayGrid(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn);
 bool checkRow(const vector<int>& row, const vector<int>& numbers);
 bool checkColumn(const vector<int>& column, const vector<int>& numbers);
 bool isSolved(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn);
@@ -23,13 +26,19 @@ int main()
         {0, 1, 1, 0, 0},
         {1, 1, 1, 0, 0}
     };
+    
+    //vector<vector<int>> headerRow = {
+    //    {1, 1, 1},
+    //    {2, 2},
+    //    {5},
+    //    {1},
+    //    {1}
+    //};
 
     vector<vector<int>> headerRow = {
-        {1, 1, 1},
-        {2, 2},
-        {5},
         {1},
-        {1}
+        {1, 2},
+        {1, 2, 5, 1, 1}
     };
 
     vector<vector<int>> sideColumn = {
@@ -51,7 +60,7 @@ int main()
     // game loop
     while (!isSolved(grid, headerRow, sideColumn)) {
         // Display the grid
-        displayGrid(playerGrid);
+        displayGrid(playerGrid, headerRow, sideColumn);
 
         // User select and set value for a grid
         int row, col, value;
@@ -59,10 +68,10 @@ int main()
         cin >> row >> col >> value;
 
         // Update the grid
-        grid[row][col] = value;
+        playerGrid[row][col] = value;
 
         // Check for valid move
-        if (!checkRow(grid[row], headerRow[row]) || !checkColumn(grid[col], sideColumn[col])) {
+        if (!checkRow(playerGrid[row], headerRow[row]) || !checkColumn(playerGrid[col], sideColumn[col])) {
             cout << "Invalid move!" << endl;
             // lose 1 life
         }
@@ -71,13 +80,34 @@ int main()
     return 0;
 }
 
-void displayGrid(const vector<vector<int>>& grid) {
-    for (const auto& row : grid) {
-        for (int cell : row) {
-            if (cell == FILLED) {
+void displayGrid(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn) {
+    // calculate grid size (or can add more inputs)
+    int rows = (int)grid.size();
+    int cols = (int)grid[0].size();
+
+    // print header row
+    //for (int i = 0; i < rows; ++i) {
+    for (int i = 0; i < (int)headerRow.size(); ++i) {
+        for (int num : headerRow[i]) {
+            cout << setw(2) << setfill('|') << num;
+        }
+        //cout << "|";
+        cout << endl;
+    }
+    cout << endl;
+
+    // print side column
+    for (int i = 0; i < cols; ++i) {
+        for (int num : sideColumn[i]) {
+            cout << setw(2) << num;
+        }
+        cout << " ";
+
+        for (int j = 0; j < cols; ++j) {
+            if (grid[i][j] == FILLED) {
                 cout << (char)254u << "|"; // filled square
             }
-            else if (cell == MARKED) {
+            else if (grid[i][j] == MARKED) {
                 cout << ".|";
             }
             else { // cell == EMPTY
@@ -144,7 +174,6 @@ bool isSolved(const vector<vector<int>>& grid, const vector<vector<int>>& header
             return false;
         }
     }
-
     return true;
 }
 

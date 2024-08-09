@@ -4,7 +4,7 @@
 
 using namespace std;
 
-const int MAX_BAD_GUESSES = 3; 
+const int MAX_BAD_GUESSES = 3; // 3 lives 
 
 // 3 states for each cell
 const int EMPTY = 0;
@@ -40,6 +40,14 @@ int main()
         {0, 1, 1, 0, 0},
         {1, 1, 1, 0, 0}
     };
+    
+    //vector<vector<int>> headerRow = {
+    //    {1, 1, 1},
+    //    {2, 2},
+    //    {5},
+    //    {1},
+    //    {1}
+    //};
 
     vector<vector<int>> headerRow = {
         {1, 0, 0, 0 ,0},
@@ -82,6 +90,29 @@ int main()
     }
     return 0;
 }
+
+void displayGrid(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn) {
+    // calculate grid size (or can add more inputs)
+    int rows = (int)grid.size();
+    int cols = (int)grid[0].size();
+
+    // print header row
+    //for (int i = 0; i < rows; ++i) {
+    for (int i = 0; i < (int)headerRow.size(); ++i) {
+        for (int num : headerRow[i]) {
+            cout << setw(2) << setfill('|') << num;
+        }
+        //cout << "|";
+        cout << endl;
+    }
+    cout << endl;
+
+    // print side column
+    for (int i = 0; i < cols; ++i) {
+        for (int num : sideColumn[i]) {
+            cout << setw(2) << num;
+        }
+        cout << " ";
 
 // define functions ------------------------------------------
 //void chooseLevel() {}
@@ -159,6 +190,7 @@ bool checkRow(const vector<int>& row, const vector<int>& numbers) {
         if (row[i] == FILLED) {
             currentGroup++;
         } else { // row[i] is empty or marked
+
             if (currentGroup > 0) {
                 numGroups++;
                 if (numGroups > numbers.size() || currentGroup != numbers[numGroups - 1]) {
@@ -192,6 +224,7 @@ bool checkColumn(const vector<int>& column, const vector<int>& numbers) {
 }
 
 bool isSolved(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn) {
+
     // Check if the grid is completely filled and valid
     for (const auto& row : grid) {
         for (int cell : row) {

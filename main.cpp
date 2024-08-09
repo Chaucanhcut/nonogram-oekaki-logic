@@ -1,7 +1,10 @@
 #include <iostream>
 #include <vector>
+#include <iomanip>
 
 using namespace std;
+
+const int MAX_BAD_GUESSES = 3; 
 
 // 3 states for each cell
 const int EMPTY = 0;
@@ -58,7 +61,7 @@ int main()
         
         // get player's guess: player select & set value for a cell
         int row, col, value;
-        cout << endl << "Choose a row, column and value: ";
+        cout << endl << "Choose row, column and set value: ";
         cin >> row >> col >> value;
 
         if (contains(OGgrid, row, col, value)) {
@@ -68,7 +71,9 @@ int main()
         else badGuessCount++;
     } while (badGuessCount < MAX_BAD_GUESSES && OGgrid != playerGrid);
 
+    // show final game result
     renderGame(playerGrid, headerRow, sideColumn, badGuessCount);
+    cout << endl;
     if (badGuessCount != MAX_BAD_GUESSES) {
         cout << "Congratulations, you solved the puzzle!" << endl;
     }

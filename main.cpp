@@ -74,6 +74,7 @@ int main()
         if (!checkRow(playerGrid[row], headerRow[row]) || !checkColumn(playerGrid[col], sideColumn[col])) {
             cout << "Invalid move!" << endl;
             // lose 1 life
+
         }
     }
     cout << "Congratulations, you solved the puzzle!" << endl;
@@ -113,6 +114,7 @@ void displayGrid(const vector<vector<int>>& grid, const vector<vector<int>>& hea
             else { // cell == EMPTY
                 cout << " |";
             }
+
         }
         cout << endl;
     }
@@ -126,6 +128,7 @@ bool checkRow(const vector<int>& row, const vector<int>& numbers) {
         if (row[i] == FILLED) {
             currentGroup++;
         } else { // row[i] is empty or marked
+
             if (currentGroup > 0) {
                 numGroups++;
                 if (numGroups > numbers.size() || currentGroup != numbers[numGroups - 1]) {
@@ -159,6 +162,7 @@ bool checkColumn(const vector<int>& column, const vector<int>& numbers) {
 }
 
 bool isSolved(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn) {
+
     // Check if the grid is completely filled and valid
     for (const auto& row : grid) {
         for (int cell : row) {
@@ -174,6 +178,7 @@ bool isSolved(const vector<vector<int>>& grid, const vector<vector<int>>& header
             return false;
         }
     }
+
     return true;
 }
 

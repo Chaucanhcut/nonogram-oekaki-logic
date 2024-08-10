@@ -12,12 +12,9 @@ const int FILLED = 1;
 const int MARKED = -1;
 
 // function prototypes -----------------------------------------
-//void chooseLevel() - read from file 
+//vector<vector<int>> chooseLevel(); 
 void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn, int badGuessCount);
 bool contains(const vector<vector<int>> & OGgrid, const int row, const int col, const int value);
-bool checkRow(const vector<int>& row, const vector<int>& numbers);
-bool checkColumn(const vector<int>& column, const vector<int>& numbers);
-bool isSolved(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn);
 
 // main ------------------------------------------
 int main()
@@ -40,14 +37,6 @@ int main()
         {0, 1, 1, 0, 0},
         {1, 1, 1, 0, 0}
     };
-    
-    //vector<vector<int>> headerRow = {
-    //    {1, 1, 1},
-    //    {2, 2},
-    //    {5},
-    //    {1},
-    //    {1}
-    //};
 
     vector<vector<int>> headerRow = {
         {1, 0, 0, 0 ,0},
@@ -91,31 +80,13 @@ int main()
     return 0;
 }
 
-void displayGrid(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn) {
-    // calculate grid size (or can add more inputs)
-    int rows = (int)grid.size();
-    int cols = (int)grid[0].size();
-
-    // print header row
-    //for (int i = 0; i < rows; ++i) {
-    for (int i = 0; i < (int)headerRow.size(); ++i) {
-        for (int num : headerRow[i]) {
-            cout << setw(2) << setfill('|') << num;
-        }
-        //cout << "|";
-        cout << endl;
-    }
-    cout << endl;
-
-    // print side column
-    for (int i = 0; i < cols; ++i) {
-        for (int num : sideColumn[i]) {
-            cout << setw(2) << num;
-        }
-        cout << " ";
-
 // define functions ------------------------------------------
-//void chooseLevel() {}
+/*
+
+vector<vector<int>> chooseLevel() {
+    
+}
+*/
 
 void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn, int badGuessCount) {
     const int PATCH_LINES = 30;
@@ -180,67 +151,5 @@ void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& head
 bool contains(const vector<vector<int>>& OGgrid, const int row, const int col, const int value) {
     if (OGgrid[row][col] == value) return true;
     return false;
-}
-
-bool checkRow(const vector<int>& row, const vector<int>& numbers) {
-    // Check if the row is valid according to the given numbers
-    int numGroups = 0;
-    int currentGroup = 0;
-    for (int i = 0; i < row.size(); ++i) {
-        if (row[i] == FILLED) {
-            currentGroup++;
-        } else { // row[i] is empty or marked
-
-            if (currentGroup > 0) {
-                numGroups++;
-                if (numGroups > numbers.size() || currentGroup != numbers[numGroups - 1]) {
-                    return false;
-                }
-                currentGroup = 0; // start counting a new number group
-            }
-        }
-    }
-    return numGroups == numbers.size() && currentGroup == numbers.back();
-}
-
-bool checkColumn(const vector<int>& column, const vector<int>& numbers) {
-    // Check if the column is valid according to the given numbers
-    int numGroups = 0;
-    int currentGroup = 0;
-    for (int i = 0; i < column.size(); ++i) {
-        if (column[i] == FILLED) {
-            currentGroup++;
-        } else {
-            if (currentGroup > 0) {
-                numGroups++;
-                if (numGroups > numbers.size() || currentGroup != numbers[numGroups - 1]) {
-                    return false;
-                }
-                currentGroup = 0;
-            }
-        }
-    }
-    return numGroups == numbers.size() && currentGroup == numbers.back();
-}
-
-bool isSolved(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn) {
-
-    // Check if the grid is completely filled and valid
-    for (const auto& row : grid) {
-        for (int cell : row) {
-            if (cell == EMPTY) {
-                return false;
-            }
-        }
-    }
-
-    // Check if all rows and columns are valid
-    for (int i = 0; i < grid.size(); ++i) {
-        if (!checkRow(grid[i], headerRow[i]) || !checkColumn(grid[i], sideColumn[i])) {
-            return false;
-        }
-    }
-
-    return true;
 }
 

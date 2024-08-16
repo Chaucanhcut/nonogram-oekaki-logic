@@ -75,7 +75,8 @@ void playNonogram() {
         {0, 0, 0, 3}
     };
 
-    vector<vector<int>> playerGrid = create_playerGrid(OGgrid);
+    vector<vector<int>> playerGrid = create_playerGrid(OGgrid); // grid to display all 3 cell states
+    vector<vector<int>> checkGrid = playerGrid; // grid to compare with OGgrid, only has 2 cell states: 0 or 1
 
     // game loop
     do {
@@ -89,9 +90,15 @@ void playNonogram() {
         if (contains(OGgrid, row, col, value)) {
             // Update player's grid
             playerGrid[row][col] = value;
+            if (value == -1) {
+                checkGrid[row][col] = 0;
+            }
+            else {
+                checkGrid[row][col] = value;
+            }
         }
         else badGuessCount++;
-    } while (badGuessCount < MAX_BAD_GUESSES && OGgrid != playerGrid);
+    } while (badGuessCount < MAX_BAD_GUESSES && OGgrid != checkGrid);
 
     // show final game result
     renderGame(playerGrid, headerRow, sideColumn, badGuessCount);
@@ -184,7 +191,14 @@ void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& head
 }
 
 bool contains(const vector<vector<int>>& OGgrid, const int row, const int col, const int value) {
-    if (OGgrid[row][col] == value) return true;
+    if (value == 0 || value == 1) {
+        if (OGgrid[row][col] == value) return true;
+        else return false;
+    } 
+    else if (value == -1) {
+        if (OGgrid[row][col] == 0) return true;
+        else return false;
+    }
     return false;
 }
 

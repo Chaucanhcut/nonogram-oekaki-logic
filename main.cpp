@@ -11,14 +11,38 @@ const int EMPTY = 0;
 const int FILLED = 1;
 const int MARKED = -1;
 
+// size of OGgrid
+int grid_row;
+int grid_col;
+
 // function prototypes -----------------------------------------
+void playNonogram();
 //vector<vector<int>> chooseLevel(); 
+void get_og_grid_size();
 void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn, int badGuessCount);
 bool contains(const vector<vector<int>> & OGgrid, const int row, const int col, const int value);
 
 // main ------------------------------------------
 int main()
 {
+    playNonogram();
+    cout << endl << "Try again?" << endl;
+    int ans;
+    cin >> ans;
+
+     do {
+        playNonogram();
+        cout << endl << "Try again?" << endl;
+        cin >> ans;
+    } while (ans == 1);
+
+    if (ans == 0) cout << "See you next time!" << endl;
+
+    return 0;
+}
+
+// define functions ------------------------------------------
+void playNonogram() {
     // Initializing
     int badGuessCount = 0;
 
@@ -54,8 +78,9 @@ int main()
 
     // game loop
     do {
+        get_og_grid_size();
         renderGame(playerGrid, headerRow, sideColumn, badGuessCount);
-        
+
         // get player's guess: player select & set value for a cell
         int row, col, value;
         cout << endl << "Choose row, column and set value: ";
@@ -77,16 +102,18 @@ int main()
     else {
         cout << "You lost! Good luck next time!" << endl;
     }
-    return 0;
 }
-
-// define functions ------------------------------------------
 /*
 
 vector<vector<int>> chooseLevel() {
     
 }
 */
+
+void get_og_grid_size() {
+    grid_row = 5;
+    grid_col = 5;
+}
 
 void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn, int badGuessCount) {
     const int PATCH_LINES = 30;
@@ -95,8 +122,10 @@ void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& head
     cout << "You have " << 3 - badGuessCount << " lives left!" << endl << endl;
     
     // calculate grid size (or can add more inputs)
-    int rows = (int)grid.size();
-    int cols = (int)grid[0].size();
+    //int rows = (int)grid.size();
+    //int cols = (int)grid[0].size();
+    int rows = grid_row;
+    int cols = grid_col;
 
     // print header row
     for (int i = 0; i < (int)headerRow.size(); ++i) {

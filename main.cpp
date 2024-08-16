@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <cmath>
 
 using namespace std;
 
@@ -12,8 +13,8 @@ const int FILLED = 1;
 const int MARKED = -1;
 
 // size of OGgrid
-int grid_row;
-int grid_col;
+int grid_rows;
+int grid_cols;
 
 // function prototypes -----------------------------------------
 void playNonogram();
@@ -51,35 +52,27 @@ void playNonogram() {
     // Initializing
     int badGuessCount = 0;
     get_og_grid_size();
-
-    //vector<vector<int>> playerGrid = {
-    //    {0, 0, 0, 0, 0},
-    //    {0, 0, 0, 0, 0},
-    //    {0, 0, 0, 0, 0},
-    //    {0, 0, 0, 0, 0},
-    //    {0, 0, 0, 0, 0}
-    //};
-    
+        
     vector<vector<int>> OGgrid = {
-        {1, 1, 1, 0, 0},
-        {0, 1, 1, 0, 0},
-        {1, 0, 1, 1, 1},
-        {0, 1, 1, 0, 0},
-        {1, 1, 1, 0, 0}
+        {1, 1, 1, 0, 0, 0, 0},
+        {0, 1, 1, 0, 0, 0, 0},
+        {1, 0, 1, 1, 1, 0, 0},
+        {0, 1, 1, 0, 0, 0, 0},
+        {1, 1, 1, 0, 0, 0, 0}
     };
 
     vector<vector<int>> headerRow = {
-        {1, 0, 0, 0 ,0},
-        {1, 2, 0, 0, 0},
-        {1, 2, 5, 1, 1}
+        {1, 0, 0, 0 ,0, 0, 0},
+        {1, 2, 0, 0, 0, 0, 0},
+        {1, 2, 5, 1, 1, 0, 0}
     };
 
     vector<vector<int>> sideColumn = {
-        {0, 3},
-        {0, 2},
-        {1, 3},
-        {0, 2},
-        {0, 3}
+        {0, 0, 0, 3},
+        {0, 0, 0, 2},
+        {0, 0, 1, 3},
+        {0, 0, 0, 2},
+        {0, 0, 0, 3}
     };
 
     vector<vector<int>> playerGrid = create_playerGrid(OGgrid);
@@ -119,8 +112,8 @@ vector<vector<int>> chooseLevel() {
 */
 
 void get_og_grid_size() {
-    grid_row = 5;
-    grid_col = 5;
+    grid_rows = 5;
+    grid_cols = 7;
 }
 
 vector <vector<int>> create_playerGrid(const vector<vector<int>>& OGgrid) {
@@ -139,23 +132,18 @@ void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& head
 
     cout << "You have " << 3 - badGuessCount << " lives left!" << endl << endl;
     
-    // calculate grid size (or can add more inputs)
-    //int rows = (int)grid.size();
-    //int cols = (int)grid[0].size();
-    int rows = grid_row;
-    int cols = grid_col;
-
     // print header row
-    for (int i = 0; i < (int)headerRow.size(); ++i) {
+    // headerRow.size() == ceil(grid_rows * 0.5)
+    for (int i = 0; i < (int)ceil(grid_rows * 0.5); ++i) {
         // print space to header rows
-        for (int num : sideColumn[0]) {
+        for (int j = 0; j < (int)sideColumn[0].size(); j++) {
             cout << setw(2) << setfill(' ') << " ";
         }
 
         // print header rows
-        for (int num : headerRow[i]) {
-            if (num != 0) {
-                cout << setw(2) << setfill('|') << num;
+        for (int k = 0; k < (int)headerRow[i].size(); k++) {
+            if (headerRow[i][k] != 0) {
+                cout << setw(2) << setfill('|') << headerRow[i][k];
             }
             else {
                 cout << setw(2) << setfill('|') << " ";
@@ -168,19 +156,19 @@ void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& head
     cout << endl;
 
     // print side column and then player grid 
-    for (int i = 0; i < cols; ++i) {
-        // side column - print each row 
-        for (int num : sideColumn[i]) {
-            if (num != 0) {
-                cout << setw(2) << setfill('|') << num;
+    for (int i = 0; i < grid_rows; ++i) {
+        // side column - print each row
+        for (int j = 0; j < (int)ceil(grid_cols * 0.5); j++) {
+            if (sideColumn[i][j] != 0) {
+                cout << setw(2) << setfill(' ') << sideColumn[i][j];
             }
             else {
-                cout << setw(2) << setfill('|') << " ";
+                cout << setw(2) << setfill(' ') << " ";
             }
         }
 
         // print player grid
-        for (int j = 0; j < cols; ++j) {
+        for (int j = 0; j < grid_cols; ++j) {
             if (grid[i][j] == FILLED) {
                 cout << "|" << (char)254u; // filled square
             }

@@ -19,6 +19,7 @@ int grid_col;
 void playNonogram();
 //vector<vector<int>> chooseLevel(); 
 void get_og_grid_size();
+vector <vector<int>> create_playerGrid(const vector<vector<int>>& OGgrid);
 void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn, int badGuessCount);
 bool contains(const vector<vector<int>> & OGgrid, const int row, const int col, const int value);
 
@@ -30,30 +31,35 @@ int main()
     int ans;
     cin >> ans;
 
-     do {
-        playNonogram();
-        cout << endl << "Try again?" << endl;
-        cin >> ans;
-    } while (ans == 1);
-
-    if (ans == 0) cout << "See you next time!" << endl;
-
+    if (ans == 0) {
+        cout << "See you next time!" << endl;
+        return 0;
+    }
+    else {
+        do {
+            playNonogram();
+            cout << endl << "Try again?" << endl;
+            cin >> ans;
+        } while (ans == 1);
+    }
     return 0;
 }
 
 // define functions ------------------------------------------
+
 void playNonogram() {
     // Initializing
     int badGuessCount = 0;
+    get_og_grid_size();
 
-    vector<vector<int>> playerGrid = {
-        {0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0}
-    };
-
+    //vector<vector<int>> playerGrid = {
+    //    {0, 0, 0, 0, 0},
+    //    {0, 0, 0, 0, 0},
+    //    {0, 0, 0, 0, 0},
+    //    {0, 0, 0, 0, 0},
+    //    {0, 0, 0, 0, 0}
+    //};
+    
     vector<vector<int>> OGgrid = {
         {1, 1, 1, 0, 0},
         {0, 1, 1, 0, 0},
@@ -76,9 +82,10 @@ void playNonogram() {
         {0, 3}
     };
 
+    vector<vector<int>> playerGrid = create_playerGrid(OGgrid);
+
     // game loop
     do {
-        get_og_grid_size();
         renderGame(playerGrid, headerRow, sideColumn, badGuessCount);
 
         // get player's guess: player select & set value for a cell
@@ -103,16 +110,27 @@ void playNonogram() {
         cout << "You lost! Good luck next time!" << endl;
     }
 }
+
 /*
 
 vector<vector<int>> chooseLevel() {
-    
+
 }
 */
 
 void get_og_grid_size() {
     grid_row = 5;
     grid_col = 5;
+}
+
+vector <vector<int>> create_playerGrid(const vector<vector<int>>& OGgrid) {
+    vector<vector<int>> playerGrid = OGgrid;
+    for (auto i = 0; i < playerGrid.size(); i++) {
+        for (auto j = 0; j < playerGrid[i].size(); j++) {
+            playerGrid[i][j] = 0;
+        }
+    }
+    return playerGrid;
 }
 
 void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn, int badGuessCount) {

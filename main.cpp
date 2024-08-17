@@ -16,8 +16,8 @@ using namespace std;
 
 //SDL-------------------------------------------------------------------
 // Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 960; // ratio ~ 32:15
+const int SCREEN_HEIGHT = 450;
 const int RENDERER_DRAW_COLOR = 0xFF;
 
 //The window we'll be rendering to
@@ -28,8 +28,14 @@ SDL_Surface* screenSurface = NULL;
 SDL_Renderer* ren = NULL;
 Mix_Music* gMusic = NULL;
 
+SDL_Texture * startbg, * gameOver;
+SDL_Texture * _1E_map, * _1M_map, * _1H_map;
+SDL_Texture * _EMPTY, * _FILLED, * _MARKED;
+
+
 //SDL functions----------------------------------------------------------------
 bool initSDL();
+SDL_Texture* loadTexture(string path);
 bool loadMedia();
 
 //GAME LOGIC-------------------------------------------------------------------
@@ -75,7 +81,7 @@ int main(int argc, char* args[])
         Mix_PlayMusic(gMusic, -1);
     }
     
-    SDL_Delay(10000);
+    SDL_Delay(1000);
 
     //Destroy window - void close()
     SDL_DestroyWindow(window);
@@ -125,24 +131,6 @@ bool initSDL() {
             //success = false;
         }
         else {
-            // //Get window surface
-            // screenSurface = SDL_GetWindowSurface(window);
-            // 
-            // //Fill the surface white
-            // SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
-            // 
-            // //Update the surface
-            // SDL_UpdateWindowSurface(window);
-            // 
-            // //Hack to get window to stay up
-            // SDL_Event e; 
-            // bool quit = false; 
-            // while (quit == false) { 
-            //     while (SDL_PollEvent(&e)) { 
-            //         if (e.type == SDL_QUIT) quit = true; 
-            //     } 
-            // }
-
              //Create renderer for window
             ren = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
             if (ren == NULL) {
@@ -178,11 +166,34 @@ bool initSDL() {
     return success;
 }
 
+SDL_Texture* loadTexture(string path) {
+    SDL_Texture* tex = NULL;
+    SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
+    if (loadedSurface == NULL)
+        cout << "Unable to load image surface" << endl;
+    else
+    {
+        tex = SDL_CreateTextureFromSurface(ren, loadedSurface);
+        SDL_FreeSurface(loadedSurface);
+    }
+    return tex;
+}
+
 bool loadMedia() {
     // flag
     bool success = true;
     
     // load images
+    startbg = loadTexture("resource/images/startbg.bmp");
+    gameOver = loadTexture("resource/images/gameOver.bmp");
+
+    _1E_map = loadTexture("resource/images/1E_map.bmp");
+    _1M_map = loadTexture("resource/images/1M_map.bmp");
+    _1H_map = loadTexture("resource/images/1H_map.bmp");
+
+    _EMPTY = loadTexture("resource/images/EMPTY.bmp");
+    _FILLED = loadTexture("resource/images/FILLED.bmp");
+    _MARKED = loadTexture("resource/images/MARKED.bmp");
     // TO-DO
 
     // load music

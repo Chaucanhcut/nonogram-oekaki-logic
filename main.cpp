@@ -2,6 +2,8 @@
 #include <vector>
 #include <iomanip>
 #include <cmath>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -16,9 +18,14 @@ const int MARKED = -1;
 int grid_rows;
 int grid_cols;
 
+// vectors to save map - OGgrid, headerRow, side Column
+vector<vector<int>> OGgrid;
+vector<vector<int>> headerRow;
+vector<vector<int>> sideColumn;
+
 // function prototypes -----------------------------------------
 void playNonogram();
-//vector<vector<int>> chooseLevel(); 
+void chooseLevel(const char* fileName); 
 void get_og_grid_size();
 vector <vector<int>> create_playerGrid(const vector<vector<int>>& OGgrid);
 void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn, int badGuessCount);
@@ -52,8 +59,8 @@ void playNonogram() {
     // Initializing
     int badGuessCount = 0;
     get_og_grid_size();
-        
-    vector<vector<int>> OGgrid = {
+         
+    OGgrid = {
         {1, 1, 1, 0, 0, 0, 0},
         {0, 1, 1, 0, 0, 0, 0},
         {1, 0, 1, 1, 1, 0, 0},
@@ -61,13 +68,13 @@ void playNonogram() {
         {1, 1, 1, 0, 0, 0, 0}
     };
 
-    vector<vector<int>> headerRow = {
+    headerRow = {
         {1, 0, 0, 0 ,0, 0, 0},
         {1, 2, 0, 0, 0, 0, 0},
         {1, 2, 5, 1, 1, 0, 0}
     };
 
-    vector<vector<int>> sideColumn = {
+    sideColumn = {
         {0, 0, 0, 3},
         {0, 0, 0, 2},
         {0, 0, 1, 3},
@@ -111,12 +118,32 @@ void playNonogram() {
     }
 }
 
-/*
+void chooseLevel(const char* fileName) {
+    vector<vector<int>> fileGrid;
+    ifstream inFile(fileName);
+    if (inFile.is_open()) {
+        string line;
+        while (getline(inFile, line)) {
+            vector<int> row_data;
 
-vector<vector<int>> chooseLevel() {
+            for (char& c : line) {
+                if (c != ' ') {
+                    // convert whole file from string to int values 
+                    // then add each row to 2D vector
+                    row_data.push_back(c - '0');
+                }
+            }
+            fileGrid.push_back(row_data);
+        }
+        inFile.close();
+    }
+    else {
+        cout << "Unable to open file!";
+    }
 
+    // TO - DO: Split file grid to 3 
+    // need fix - 3 diff vectors
 }
-*/
 
 void get_og_grid_size() {
     grid_rows = 5;

@@ -15,4 +15,9 @@ Giới thiệu:
 5. Hướng dẫn chơi
 6. Chiến thắng và thất bại
 7. Đồ họa
+   - Giao diện trò chơi: https://nonogram.frvr.com/
 8. Mã nguồn
+   - Cảm hứng:
+   -   https://nonogram.com/
+   -   https://github.com/jselbo/cli-nonogram
+   - Mã nguồn được xây dựng từ đầu và không tham khảo code tại bất kỳ nguồn nào. Một số hàm trong chương trình được viết dựa trên ý tưởng thuật toán từ https://www.geeksforgeeks.org/ và https://stackoverflow.com/.

@@ -25,6 +25,7 @@ vector<vector<int>> sideColumn;
 
 // function prototypes -----------------------------------------
 void playNonogram();
+vector<vector<int>> slicing(vector<vector<int>>& arr, int x, int y);
 void chooseLevel(const char* fileName); 
 void get_og_grid_size();
 vector <vector<int>> create_playerGrid(const vector<vector<int>>& OGgrid);
@@ -59,28 +60,9 @@ void playNonogram() {
     // Initializing
     int badGuessCount = 0;
     get_og_grid_size();
-         
-    OGgrid = {
-        {1, 1, 1, 0, 0, 0, 0},
-        {0, 1, 1, 0, 0, 0, 0},
-        {1, 0, 1, 1, 1, 0, 0},
-        {0, 1, 1, 0, 0, 0, 0},
-        {1, 1, 1, 0, 0, 0, 0}
-    };
-
-    headerRow = {
-        {1, 0, 0, 0 ,0, 0, 0},
-        {1, 2, 0, 0, 0, 0, 0},
-        {1, 2, 5, 1, 1, 0, 0}
-    };
-
-    sideColumn = {
-        {0, 0, 0, 3},
-        {0, 0, 0, 2},
-        {0, 0, 1, 3},
-        {0, 0, 0, 2},
-        {0, 0, 0, 3}
-    };
+    
+    //chooseLevel("/resource/map_data/map.txt");
+    chooseLevel("E1_map.txt");
 
     vector<vector<int>> playerGrid = create_playerGrid(OGgrid); // grid to display all 3 cell states
     vector<vector<int>> checkGrid = playerGrid; // grid to compare with OGgrid, only has 2 cell states: 0 or 1
@@ -118,6 +100,21 @@ void playNonogram() {
     }
 }
 
+vector<vector<int>> slicing(vector<vector<int>>& arr, int x, int y) {
+    // Starting and Ending iterators: slice from x to y
+    auto start = arr.begin() + x;
+    auto end = arr.begin() + y + 1;
+
+    // To store the sliced vector
+    vector<vector<int>> result(y - x + 1);
+
+    // Copy vector using copy function()
+    copy(start, end, result.begin());
+
+    // Return the final sliced vector
+    return result;
+}
+
 void chooseLevel(const char* fileName) {
     vector<vector<int>> fileGrid;
     ifstream inFile(fileName);
@@ -142,7 +139,9 @@ void chooseLevel(const char* fileName) {
     }
 
     // TO - DO: Split file grid to 3 
-    // need fix - 3 diff vectors
+    OGgrid = slicing(fileGrid, 0, grid_rows - 1);
+    headerRow = slicing(fileGrid, grid_rows + 1, grid_rows + (int)ceil(grid_rows * 0.5));
+    sideColumn = slicing(fileGrid, grid_rows + (int)ceil(grid_rows * 0.5) + 2, (int)fileGrid.size() - 1);
 }
 
 void get_og_grid_size() {

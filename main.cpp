@@ -5,9 +5,34 @@
 #include <fstream>
 #include <string>
 #include <cctype>
+// SDL and standard IO
+#include <stdio.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_mixer.h>
+#include <SDL_ttf.h>
 
 using namespace std;
 
+//SDL-------------------------------------------------------------------
+// Screen dimension constants
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 480;
+const int RENDERER_DRAW_COLOR = 0xFF;
+
+//The window we'll be rendering to
+SDL_Window* window = NULL;
+//The surface contained by the window
+SDL_Surface* screenSurface = NULL;
+
+SDL_Renderer* ren = NULL;
+Mix_Music* gMusic = NULL;
+
+//SDL functions----------------------------------------------------------------
+bool initSDL();
+bool loadMedia();
+
+//GAME LOGIC-------------------------------------------------------------------
 const int MAX_BAD_GUESSES = 3; // 3 lives 
 
 // 3 states for each cell
@@ -34,8 +59,34 @@ void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& head
 bool contains(const vector<vector<int>> & OGgrid, const int row, const int col, const int value);
 
 // main ------------------------------------------
-int main()
+int main(int argc, char* args[])
 {
+    // Start SDL & create window
+    if (!initSDL()) {
+        cout << "Failed to initialize!\n" << endl;
+        return -1;
+    }
+    else {
+        //Load media
+        if (!loadMedia()) {
+            cout << "Failed to load media!\n" << endl;
+            return -1;
+        }
+        Mix_PlayMusic(gMusic, -1);
+    }
+    
+    SDL_Delay(10000);
+
+    //Destroy window - void close()
+    SDL_DestroyWindow(window);
+    window = NULL;
+
+    //Quit SDL subsystems
+    Mix_Quit();
+    IMG_Quit();
+    SDL_Quit();
+
+    /// CONSOLE PLAY ---------------------------------------
     playNonogram();
     cout << endl << "Try again?" << endl;
     int ans;
@@ -56,7 +107,94 @@ int main()
 }
 
 // define functions ------------------------------------------
+/// SDL functions
+bool initSDL() {
+    // init flag
+    bool success = true;
 
+    //Initialize SDL
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+        cout << "SDL could not initialize! SDL_Error: %s\n" << SDL_GetError() << endl;
+        //success = false;
+    }
+    else {
+        //Create window
+        window = SDL_CreateWindow("NONOGRAM", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        if (window == NULL) {
+            cout << "Window could not be created! SDL_Error: %s\n" << SDL_GetError() << endl;
+            //success = false;
+        }
+        else {
+            // //Get window surface
+            // screenSurface = SDL_GetWindowSurface(window);
+            // 
+            // //Fill the surface white
+            // SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
+            // 
+            // //Update the surface
+            // SDL_UpdateWindowSurface(window);
+            // 
+            // //Hack to get window to stay up
+            // SDL_Event e; 
+            // bool quit = false; 
+            // while (quit == false) { 
+            //     while (SDL_PollEvent(&e)) { 
+            //         if (e.type == SDL_QUIT) quit = true; 
+            //     } 
+            // }
+
+             //Create renderer for window
+            ren = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+            if (ren == NULL) {
+                cout << "Renderer could not be created! SDL Error: %s\n" << SDL_GetError() << endl;
+                //success = false;
+            }
+            else {
+                //Initialize renderer color
+                SDL_SetRenderDrawColor(ren, RENDERER_DRAW_COLOR, RENDERER_DRAW_COLOR, RENDERER_DRAW_COLOR, RENDERER_DRAW_COLOR);
+
+                //Initialize PNG loading
+                int imgFlags = IMG_INIT_PNG;
+                if (!(IMG_Init(imgFlags) & imgFlags)) {
+                    cout << "SDL_image could not initialize! SDL_image Error: %s\n" << IMG_GetError() << endl;
+                    //success = false;
+                }
+
+                //Initialize SDL_mixer
+                if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+                    cout << "SDL_mixer could not initialize! SDL_mixer Error: %s\n" << Mix_GetError() << endl;
+                    //success = false;
+                }
+
+                //Initialize SDL_ttf
+                if (TTF_Init() == -1) {
+                    cout << "SDL_ttf could not initialize! SDL_ttf Error: %s\n" << TTF_GetError() << endl;
+                    //success = false;
+                }
+            }
+        }
+    }
+
+    return success;
+}
+
+bool loadMedia() {
+    // flag
+    bool success = true;
+    
+    // load images
+    // TO-DO
+
+    // load music
+    gMusic = Mix_LoadMUS("resource/audio/beat.mp3");
+    if (gMusic == NULL) {
+        cout << "Failed to load background music! SDL_mixer Error: %s\n" << Mix_GetError() << endl;
+        success = false;
+    }
+    return success;
+}
+
+/// game logic functions
 void playNonogram() {
     // Initializing
     int badGuessCount = 0;

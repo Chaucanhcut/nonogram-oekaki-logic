@@ -4,6 +4,7 @@
 #include <cmath>
 #include <fstream>
 #include <string>
+#include <cctype>
 
 using namespace std;
 
@@ -27,7 +28,7 @@ vector<vector<int>> sideColumn;
 void playNonogram();
 vector<vector<int>> slicing(vector<vector<int>>& arr, int x, int y);
 void chooseLevel(const char* fileName); 
-void get_og_grid_size();
+void get_og_grid_size(int row, int col);
 vector <vector<int>> create_playerGrid(const vector<vector<int>>& OGgrid);
 void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn, int badGuessCount);
 bool contains(const vector<vector<int>> & OGgrid, const int row, const int col, const int value);
@@ -59,10 +60,30 @@ int main()
 void playNonogram() {
     // Initializing
     int badGuessCount = 0;
-    get_og_grid_size();
+
+    cout << "Choose difficulty: E - M - H: ";
+    char level;
+    cin >> level;
+    level = toupper(level);
+
+    switch (level) {
+    case 'E':
+        get_og_grid_size(5, 5);
+        chooseLevel("1E_map.txt");
+        break;
+
+    case 'M':
+        get_og_grid_size(7, 9);
+        chooseLevel("1M_map.txt");
+        break;
+
+    case 'H':
+        get_og_grid_size(9, 9);
+        chooseLevel("1H_map.txt");
+        break;
+    }
     
     //chooseLevel("/resource/map_data/map.txt");
-    chooseLevel("E1_map.txt");
 
     vector<vector<int>> playerGrid = create_playerGrid(OGgrid); // grid to display all 3 cell states
     vector<vector<int>> checkGrid = playerGrid; // grid to compare with OGgrid, only has 2 cell states: 0 or 1
@@ -144,9 +165,9 @@ void chooseLevel(const char* fileName) {
     sideColumn = slicing(fileGrid, grid_rows + (int)ceil(grid_rows * 0.5) + 2, (int)fileGrid.size() - 1);
 }
 
-void get_og_grid_size() {
-    grid_rows = 5;
-    grid_cols = 7;
+void get_og_grid_size(int row, int col) {
+    grid_rows = row;
+    grid_cols = col;
 }
 
 vector <vector<int>> create_playerGrid(const vector<vector<int>>& OGgrid) {

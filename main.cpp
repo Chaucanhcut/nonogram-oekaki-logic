@@ -207,21 +207,20 @@ void playNonogram() {
     switch (level) {
     case 'E':
         get_og_grid_size(5, 5);
-        chooseLevel("1E_map.txt");
+        chooseLevel("resource/maps/1E_map.txt");
         break;
 
     case 'M':
         get_og_grid_size(7, 9);
-        chooseLevel("1M_map.txt");
+        chooseLevel("resource/maps/1M_map.txt");
         break;
 
     case 'H':
         get_og_grid_size(9, 9);
-        chooseLevel("1H_map.txt");
+        chooseLevel("resource/maps/1H_map.txt");
         break;
     }
     
-    //chooseLevel("/resource/map_data/map.txt");
 
     vector<vector<int>> playerGrid = create_playerGrid(OGgrid); // grid to display all 3 cell states
     vector<vector<int>> checkGrid = playerGrid; // grid to compare with OGgrid, only has 2 cell states: 0 or 1

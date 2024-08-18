@@ -46,6 +46,7 @@ bool loadMedia();
 void render_start_background();
 void show_start_background_options();
 void show_leaderboard();
+void show_level(char lvl);
 
 //GAME LOGIC-------------------------------------------------------------------
 const int MAX_BAD_GUESSES = 3; // 3 lives 
@@ -65,7 +66,7 @@ vector<vector<int>> headerRow;
 vector<vector<int>> sideColumn;
 
 // function prototypes -----------------------------------------
-void playNonogram();
+void playNonogram(char lvl);
 vector<vector<int>> slicing(vector<vector<int>>& arr, int x, int y);
 void chooseLevel(const char* fileName); 
 void get_og_grid_size(int row, int col);
@@ -103,7 +104,7 @@ int main(int argc, char* args[])
     destroy_SDL();
 
     /// CONSOLE PLAY ---------------------------------------
-    playNonogram();
+    playNonogram('E');
     cout << endl << "Try again?" << endl;
     int ans;
     cin >> ans;
@@ -114,7 +115,7 @@ int main(int argc, char* args[])
     }
     else {
         do {
-            playNonogram();
+            playNonogram('E');
             cout << endl << "Try again?" << endl;
             cin >> ans;
         } while (ans == 1);
@@ -304,13 +305,22 @@ void show_start_background_options() {
             x = e.button.x;
             y = e.button.y;
             if (e.button.button == SDL_BUTTON_LEFT || e.button.button == SDL_BUTTON_RIGHT || e.button.button == SDL_BUTTON_MIDDLE) {
-                if ((x > 369 && y > 173) && (x < 527 && y < 338)) {
-                    //play button
-                    // TO-DO: 3 regions for 3 difficulties
-                    // 
+                if ((x > 365 && y > 338) && (x < 535 && y < 505)) {
+                    //play easy level
                     // EnterName();
-                    SDL_Delay(500);
-                    playNonogram();
+                    playNonogram('E');
+                }
+
+                if ((x > 556 && y > 338) && (x < 721 && y < 505)) {
+                    //play medium level
+                    // EnterName();
+                    playNonogram('M');
+                }
+
+                if ((x > 741 && y > 338) && (x < 908 && y < 505)) {
+                    //play hard level
+                    // EnterName();
+                    playNonogram('H');
                 }
 
                 if ((x > 550 && y > 194) && (x < 723 && y < 255)) {
@@ -363,14 +373,41 @@ void show_leaderboard() {
     SDL_RenderPresent(ren);
 }
 
-/// game logic functions------------------------------------------------------
-void playNonogram() {
-    cout << "Choose difficulty: E - M - H: ";
-    char level;
-    cin >> level;
-    level = toupper(level);
+void show_level(char lvl) {
+    SDL_RenderClear(ren);
+    switch (lvl) {
+    case 'E':
+        renderTexture(_1E_map, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        break;
 
-    switch (level) {
+    case 'M':
+        renderTexture(_1M_map, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        break;
+
+    case 'H':
+        renderTexture(_1H_map, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        break;
+    }
+    
+    // to - do
+    SDL_RenderPresent(ren);
+
+    bool quit = false;
+    SDL_Event e;
+    while (!quit) {
+        SDL_Delay(10);
+        if (SDL_WaitEvent(&e) == 0) continue;
+        if ((e.type == SDL_QUIT) || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)) {
+            destroy_SDL();
+            exit(1);
+        }
+    }
+}
+
+/// game logic functions------------------------------------------------------
+void playNonogram(char lvl) {
+    lvl = toupper(lvl);
+    switch (lvl) {
     case 'E':
         get_og_grid_size(5, 5);
         chooseLevel("resource/maps/1E_map.txt");
@@ -393,6 +430,8 @@ void playNonogram() {
     int badGuessCount = 0;
     vector<vector<int>> playerGrid = create_playerGrid(OGgrid); // grid to display all 3 cell states
     vector<vector<int>> checkGrid = playerGrid; // grid to compare with OGgrid, only has 2 cell states: 0 or 1
+
+    show_level(lvl);
 
     // game loop
     do {

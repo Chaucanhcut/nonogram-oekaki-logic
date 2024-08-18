@@ -11,13 +11,14 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
+#include <SDL_render.h>
 
 using namespace std;
 
 //SDL-------------------------------------------------------------------
 // Screen dimension constants
-const int SCREEN_WIDTH = 960; // ratio ~ 32:15
-const int SCREEN_HEIGHT = 450;
+const int SCREEN_WIDTH = 1280; // ratio ~ 32:15
+const int SCREEN_HEIGHT = 600;
 const int RENDERER_DRAW_COLOR = 0xFF;
 
 //The window we'll be rendering to
@@ -28,7 +29,7 @@ SDL_Surface* screenSurface = NULL;
 SDL_Renderer* ren = NULL;
 Mix_Music* gMusic = NULL;
 
-SDL_Texture * startbg, * gameOver;
+SDL_Texture * startbg, * leaderboard, * gameOver;
 SDL_Texture * _1E_map, * _1M_map, * _1H_map;
 SDL_Texture * _EMPTY, * _FILLED, * _MARKED;
 
@@ -36,7 +37,15 @@ SDL_Texture * _EMPTY, * _FILLED, * _MARKED;
 //SDL functions----------------------------------------------------------------
 bool initSDL();
 SDL_Texture* loadTexture(string path);
+void renderTexture(SDL_Texture* tex, int x, int y, int w, int h);
+void renderTexture(SDL_Texture* tex, int x, int y);
+void WaitUntilKeyPressed();
+void destroy_SDL();
+
 bool loadMedia();
+void render_start_background();
+void show_start_background_options();
+void show_leaderboard();
 
 //GAME LOGIC-------------------------------------------------------------------
 const int MAX_BAD_GUESSES = 3; // 3 lives 
@@ -64,7 +73,7 @@ vector <vector<int>> create_playerGrid(const vector<vector<int>>& OGgrid);
 void renderGame(const vector<vector<int>>& grid, const vector<vector<int>>& headerRow, const vector<vector<int>>& sideColumn, int badGuessCount);
 bool contains(const vector<vector<int>> & OGgrid, const int row, const int col, const int value);
 
-// main ------------------------------------------
+/// main ------------------------------------------
 int main(int argc, char* args[])
 {
     // Start SDL & create window
@@ -81,16 +90,17 @@ int main(int argc, char* args[])
         Mix_PlayMusic(gMusic, -1);
     }
     
-    SDL_Delay(1000);
+    // read and write to file: leaderboard data
+    // TO-DO
+    
+    render_start_background();
+    show_start_background_options(); // TO-DO: edit regions range - options
+    SDL_Delay(10000);
 
-    //Destroy window - void close()
-    SDL_DestroyWindow(window);
-    window = NULL;
+    //saveScore();
 
-    //Quit SDL subsystems
-    Mix_Quit();
-    IMG_Quit();
-    SDL_Quit();
+    WaitUntilKeyPressed();
+    destroy_SDL();
 
     /// CONSOLE PLAY ---------------------------------------
     playNonogram();
@@ -109,6 +119,7 @@ int main(int argc, char* args[])
             cin >> ans;
         } while (ans == 1);
     }
+
     return 0;
 }
 
@@ -179,12 +190,79 @@ SDL_Texture* loadTexture(string path) {
     return tex;
 }
 
+void renderTexture(SDL_Texture* tex, int x, int y, int w, int h) {
+    SDL_Rect dst;
+    dst.x = x;
+    dst.y = y;
+    dst.w = w;
+    dst.h = h;
+    SDL_RenderCopy(ren, tex, NULL, &dst);
+} 
+
+void renderTexture(SDL_Texture* tex, int x, int y) {
+    SDL_Rect dst;
+    dst.x = x;
+    dst.y = y;
+    SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
+    SDL_RenderCopy(ren, tex, NULL, &dst);
+}
+
+void WaitUntilKeyPressed() {
+    SDL_Event e;
+    while (true)
+    {
+        if (SDL_WaitEvent(&e) != 0 && (e.type == SDL_KEYDOWN || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_QUIT))
+        {
+            return;
+            SDL_Delay(100);
+        }
+    }
+}
+
+void destroy_SDL() {
+    SDL_DestroyTexture(startbg);
+    startbg = NULL;
+    SDL_DestroyTexture(leaderboard);
+    leaderboard = NULL;
+    SDL_DestroyTexture(gameOver);
+    gameOver = NULL;
+    SDL_DestroyTexture(_1E_map);
+    _1E_map = NULL;
+    SDL_DestroyTexture(_1M_map);
+    _1M_map = NULL;
+    SDL_DestroyTexture(_1H_map);
+    _1H_map = NULL;
+    SDL_DestroyTexture(_EMPTY);
+    _EMPTY = NULL;
+    SDL_DestroyTexture(_FILLED);
+    _FILLED = NULL;
+    SDL_DestroyTexture(_MARKED);
+    _MARKED = NULL;
+    // TO-DO
+
+    SDL_DestroyRenderer(ren);
+    ren = NULL;
+    //Destroy window
+    SDL_DestroyWindow(window);
+    window = NULL;
+
+    //Free the music
+    Mix_FreeMusic(gMusic);
+    gMusic = NULL;
+
+    //Quit SDL subsystems
+    Mix_Quit();
+    IMG_Quit();
+    SDL_Quit();
+}
+
 bool loadMedia() {
     // flag
     bool success = true;
     
     // load images
     startbg = loadTexture("resource/images/startbg.bmp");
+    leaderboard = loadTexture("resource/images/leaderboard.bmp");
     gameOver = loadTexture("resource/images/gameOver.bmp");
 
     _1E_map = loadTexture("resource/images/1E_map.bmp");
@@ -197,7 +275,7 @@ bool loadMedia() {
     // TO-DO
 
     // load music
-    gMusic = Mix_LoadMUS("resource/audio/beat.mp3");
+    gMusic = Mix_LoadMUS("resource/audio/bgm.mp3");
     if (gMusic == NULL) {
         cout << "Failed to load background music! SDL_mixer Error: %s\n" << Mix_GetError() << endl;
         success = false;
@@ -205,11 +283,88 @@ bool loadMedia() {
     return success;
 }
 
-/// game logic functions
-void playNonogram() {
-    // Initializing
-    int badGuessCount = 0;
+void render_start_background() {
+    SDL_RenderClear(ren);
+    renderTexture(startbg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    SDL_RenderPresent(ren);
+}
 
+void show_start_background_options() {
+    bool quit = false;
+    SDL_Event e;
+    while (!quit) {
+        SDL_Delay(10);
+        if (SDL_WaitEvent(&e) == 0) continue;
+        if ((e.type == SDL_QUIT) || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)) {
+            destroy_SDL();
+            exit(1);
+        }
+        if (e.type == SDL_MOUSEBUTTONDOWN) {
+            int x, y;
+            x = e.button.x;
+            y = e.button.y;
+            if (e.button.button == SDL_BUTTON_LEFT || e.button.button == SDL_BUTTON_RIGHT || e.button.button == SDL_BUTTON_MIDDLE) {
+                if ((x > 369 && y > 173) && (x < 527 && y < 338)) {
+                    //play button
+                    // TO-DO: 3 regions for 3 difficulties
+                    // 
+                    // EnterName();
+                    SDL_Delay(500);
+                    playNonogram();
+                }
+
+                if ((x > 550 && y > 194) && (x < 723 && y < 255)) {
+                    // show leaderboard
+                    show_leaderboard();
+                }
+
+                // if ((x > 822 && y > 8) && (x < 890 && y < 79))
+                // {
+                //     // play guide
+                //     renderTexture(settings, 237, 21);
+                //     SDL_RenderPresent(ren);
+                // }
+                // if ((x > 628 && y > 39) && (x < 687 && y < 91))
+                // {
+                //     // x-out the play guide
+                //     render_start_background();
+                // }
+            }
+        }
+        // if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_r)
+        //     showRank();
+    }
+}
+
+void show_leaderboard() {
+    SDL_RenderClear(ren);
+    renderTexture(leaderboard, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    // To-do: load leaderboard data from file
+
+    SDL_RenderPresent(ren);
+    
+    bool quitRank = false;
+    SDL_Event e1;
+    while (!quitRank)
+    {
+        if (SDL_WaitEvent(&e1) == 0) continue;
+        if ((e1.type == SDL_QUIT) || (e1.type == SDL_KEYDOWN && e1.key.keysym.sym == SDLK_ESCAPE))
+        {
+            destroy_SDL();
+            exit(1);
+        }
+        if (e1.type == SDL_KEYDOWN && e1.key.keysym.sym == SDLK_m)
+        {
+            render_start_background();
+            quitRank = true;
+        }
+    }
+
+    SDL_RenderPresent(ren);
+}
+
+/// game logic functions------------------------------------------------------
+void playNonogram() {
     cout << "Choose difficulty: E - M - H: ";
     char level;
     cin >> level;
@@ -231,8 +386,11 @@ void playNonogram() {
         chooseLevel("resource/maps/1H_map.txt");
         break;
     }
-    
 
+    // saveScore();
+    
+    // Initializing
+    int badGuessCount = 0;
     vector<vector<int>> playerGrid = create_playerGrid(OGgrid); // grid to display all 3 cell states
     vector<vector<int>> checkGrid = playerGrid; // grid to compare with OGgrid, only has 2 cell states: 0 or 1
 
